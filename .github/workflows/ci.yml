@@ -31,8 +31,8 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
     
-    - name: Run tests
-      run: ./gradlew test --no-daemon
+    
+    
     
     - name: Upload test results
       if: always()
