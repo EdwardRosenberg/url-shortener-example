@@ -4,8 +4,8 @@ A Spring Boot application demonstrating project skeleton and guardrails setup wi
 
 ## Prerequisites
 
-- Java 17 or higher
-- Gradle 8.5+ (included via wrapper)
+- Java 21 or higher
+- Gradle 9.2+ (included via wrapper)
 
 ## Getting Started
 
