@@ -58,7 +58,14 @@ You can externalize secrets and configuration using environment variables:
 
 1. Copy `.env.example` to `.env`
 2. Update the values in `.env`
-3. **Important:** The `.env` file must be in Java properties format (not standard dotenv format). Each line should be `key=value`, with no spaces around the equals sign, and values should be properly escaped if they contain special characters. For example:
+3. The application will automatically load variables from `.env` file
+
+Example:
+```bash
+PORT=9000 ./gradlew bootRun
+```
+
+You can also pass environment variables directly when running the application.
 ## Code Formatting
 
 This project uses [Spotless](https://github.com/diffplug/spotless) with Google Java Format for consistent code style.
