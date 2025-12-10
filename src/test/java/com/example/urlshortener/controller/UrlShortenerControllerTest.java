@@ -212,7 +212,8 @@ class UrlShortenerControllerTest {
     // Extract the short code from the response
     String responseBody = result.getResponse().getContentAsString();
     String shortUrl = objectMapper.readTree(responseBody).get("shortUrl").asText();
-    String shortCode = shortUrl.substring(shortUrl.lastIndexOf('/') + 1);
+    java.net.URI uri = java.net.URI.create(shortUrl);
+    String shortCode = uri.getPath().substring(1); // Remove leading '/'
 
     // Step 2: Use the short code to redirect
     mockMvc

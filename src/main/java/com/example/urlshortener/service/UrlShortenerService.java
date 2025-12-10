@@ -42,11 +42,15 @@ public class UrlShortenerService {
   }
 
   private String generateShortCode() {
-    String code;
-    do {
-      code = generateRandomCode();
-    } while (urlStore.containsKey(code));
-    return code;
+    int maxAttempts = 10;
+    for (int i = 0; i < maxAttempts; i++) {
+      String code = generateRandomCode();
+      if (!urlStore.containsKey(code)) {
+        return code;
+      }
+    }
+    throw new IllegalStateException(
+        "Failed to generate unique short code after " + maxAttempts + " attempts");
   }
 
   private String generateRandomCode() {
