@@ -1,13 +1,30 @@
 package com.example.urlshortener.model;
 
+import jakarta.persistence.*;
 import java.time.Instant;
 
+@Entity
+@Table(name = "links_core")
 public class UrlMapping {
-  private final String shortCode;
-  private final String encryptedLongUrl;
-  private final Instant createdAt;
-  private final Instant expiry;
+  @Id
+  @Column(name = "code", nullable = false)
+  private String shortCode;
+
+  @Column(name = "target_url", nullable = false, columnDefinition = "TEXT")
+  private String encryptedLongUrl;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private Instant createdAt;
+
+  @Column(name = "expiry_ts")
+  private Instant expiry;
+
+  @Column(name = "is_disabled", nullable = false)
   private boolean disabled;
+
+  protected UrlMapping() {
+    // JPA requires a no-arg constructor
+  }
 
   public UrlMapping(String shortCode, String encryptedLongUrl, Instant expiry) {
     this.shortCode = shortCode;

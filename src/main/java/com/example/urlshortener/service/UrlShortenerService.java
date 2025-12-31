@@ -1,13 +1,13 @@
 package com.example.urlshortener.service;
 
 import com.example.urlshortener.model.UrlMapping;
+import com.example.urlshortener.repository.UrlMappingRepository;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,10 +17,12 @@ public class UrlShortenerService {
   private static final int SHORT_CODE_LENGTH = 6;
   private static final SecureRandom RANDOM = new SecureRandom();
 
-  private final ConcurrentHashMap<String, UrlMapping> urlStore = new ConcurrentHashMap<>();
+  private final UrlMappingRepository urlMappingRepository;
   private final EncryptionService encryptionService;
 
-  public UrlShortenerService(EncryptionService encryptionService) {
+  public UrlShortenerService(
+      UrlMappingRepository urlMappingRepository, EncryptionService encryptionService) {
+    this.urlMappingRepository = urlMappingRepository;
     this.encryptionService = encryptionService;
   }
 
@@ -32,7 +34,7 @@ public class UrlShortenerService {
 
     String shortCode;
     if (customAlias != null && !customAlias.isEmpty()) {
-      if (urlStore.containsKey(customAlias)) {
+      if (urlMappingRepository.existsByShortCode(customAlias)) {
         throw new IllegalArgumentException("Custom alias already exists");
       }
       shortCode = customAlias;
@@ -41,12 +43,11 @@ public class UrlShortenerService {
     }
 
     UrlMapping mapping = new UrlMapping(shortCode, encryptedUrl, expiry);
-    urlStore.put(shortCode, mapping);
-    return mapping;
+    return urlMappingRepository.persist(mapping);
   }
 
   public Optional<UrlMapping> findByCode(String code) {
-    return Optional.ofNullable(urlStore.get(code));
+    return urlMappingRepository.findByShortCode(code);
   }
 
   public String decryptUrl(String encryptedUrl) {
@@ -57,7 +58,7 @@ public class UrlShortenerService {
     int maxAttempts = 10;
     for (int i = 0; i < maxAttempts; i++) {
       String code = generateRandomCode();
-      if (!urlStore.containsKey(code)) {
+      if (!urlMappingRepository.existsByShortCode(code)) {
         return code;
       }
     }

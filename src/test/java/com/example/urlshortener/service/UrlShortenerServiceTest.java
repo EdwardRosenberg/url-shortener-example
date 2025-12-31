@@ -3,21 +3,27 @@ package com.example.urlshortener.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.urlshortener.model.UrlMapping;
+import com.example.urlshortener.repository.UrlMappingRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+@SpringBootTest
+@Transactional
 class UrlShortenerServiceTest {
 
-  private UrlShortenerService service;
-  private EncryptionService encryptionService;
+  @Autowired private UrlShortenerService service;
+
+  @Autowired private UrlMappingRepository repository;
 
   @BeforeEach
   void setUp() {
-    encryptionService = new EncryptionService("");
-    service = new UrlShortenerService(encryptionService);
+    repository.deleteAll();
   }
 
   @Test
@@ -159,8 +165,11 @@ class UrlShortenerServiceTest {
     assertFalse(mapping.isDisabled());
 
     mapping.setDisabled(true);
+    repository.save(mapping);
 
-    assertTrue(mapping.isDisabled());
+    Optional<UrlMapping> found = service.findByCode(mapping.getShortCode());
+    assertTrue(found.isPresent());
+    assertTrue(found.get().isDisabled());
   }
 
   @Test
@@ -175,5 +184,24 @@ class UrlShortenerServiceTest {
     // Verify decryption returns the original URL
     String decryptedUrl = service.decryptUrl(mapping.getEncryptedLongUrl());
     assertEquals(originalUrl, decryptedUrl);
+  }
+
+  @Test
+  void testDataPersistence() {
+    String longUrl = "https://example.com/persistence-test";
+    String customAlias = "persist123";
+
+    // Save a URL mapping
+    UrlMapping mapping = service.shorten(longUrl, customAlias, null);
+    String shortCode = mapping.getShortCode();
+
+    // Clear the persistence context to force a fresh read from the database
+    repository.flush();
+
+    // Verify it can be retrieved
+    Optional<UrlMapping> found = service.findByCode(shortCode);
+    assertTrue(found.isPresent());
+    assertEquals(shortCode, found.get().getShortCode());
+    assertEquals(longUrl, service.decryptUrl(found.get().getEncryptedLongUrl()));
   }
 }
