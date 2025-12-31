@@ -34,3 +34,9 @@ logs/
 
 # Environment variables
 .env
+
+# Database
+data/
+*.db
+*.mv.db
+*.trace.db
