@@ -48,8 +48,9 @@ public class UrlShortenerController {
               if (mapping.isExpired()) {
                 return ResponseEntity.status(HttpStatus.GONE).<Void>build();
               }
+              String decryptedUrl = urlShortenerService.decryptUrl(mapping.getEncryptedLongUrl());
               return ResponseEntity.status(HttpStatus.FOUND)
-                  .header("Location", mapping.getLongUrl())
+                  .header("Location", decryptedUrl)
                   .<Void>build();
             })
         .orElse(ResponseEntity.notFound().build());
@@ -64,10 +65,11 @@ public class UrlShortenerController {
               if (mapping.isDisabled() || mapping.isExpired()) {
                 return ResponseEntity.status(HttpStatus.GONE).<UrlMetadata>build();
               }
+              String decryptedUrl = urlShortenerService.decryptUrl(mapping.getEncryptedLongUrl());
               UrlMetadata metadata =
                   new UrlMetadata(
                       mapping.getShortCode(),
-                      mapping.getLongUrl(),
+                      decryptedUrl,
                       mapping.getCreatedAt(),
                       mapping.getExpiry(),
                       mapping.isDisabled(),

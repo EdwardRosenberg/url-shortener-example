@@ -12,10 +12,12 @@ import org.junit.jupiter.api.Test;
 class UrlShortenerServiceTest {
 
   private UrlShortenerService service;
+  private EncryptionService encryptionService;
 
   @BeforeEach
   void setUp() {
-    service = new UrlShortenerService();
+    encryptionService = new EncryptionService("");
+    service = new UrlShortenerService(encryptionService);
   }
 
   @Test
@@ -26,7 +28,8 @@ class UrlShortenerServiceTest {
 
     assertNotNull(mapping);
     assertNotNull(mapping.getShortCode());
-    assertEquals(longUrl, mapping.getLongUrl());
+    // URL is encrypted, so we decrypt to verify
+    assertEquals(longUrl, service.decryptUrl(mapping.getEncryptedLongUrl()));
     assertFalse(mapping.isDisabled());
     assertFalse(mapping.isExpired());
   }
@@ -39,7 +42,7 @@ class UrlShortenerServiceTest {
     UrlMapping mapping = service.shorten(longUrl, customAlias, null);
 
     assertEquals(customAlias, mapping.getShortCode());
-    assertEquals(longUrl, mapping.getLongUrl());
+    assertEquals(longUrl, service.decryptUrl(mapping.getEncryptedLongUrl()));
   }
 
   @Test
@@ -72,7 +75,7 @@ class UrlShortenerServiceTest {
 
     assertTrue(found.isPresent());
     assertEquals(mapping.getShortCode(), found.get().getShortCode());
-    assertEquals(longUrl, found.get().getLongUrl());
+    assertEquals(longUrl, service.decryptUrl(found.get().getEncryptedLongUrl()));
   }
 
   @Test
@@ -125,7 +128,7 @@ class UrlShortenerServiceTest {
     UrlMapping mapping = service.shorten(longUrl, null, null);
 
     assertNotNull(mapping);
-    assertEquals(longUrl, mapping.getLongUrl());
+    assertEquals(longUrl, service.decryptUrl(mapping.getEncryptedLongUrl()));
   }
 
   @Test
@@ -135,7 +138,7 @@ class UrlShortenerServiceTest {
     UrlMapping mapping = service.shorten(longUrl, null, null);
 
     assertNotNull(mapping);
-    assertEquals(longUrl, mapping.getLongUrl());
+    assertEquals(longUrl, service.decryptUrl(mapping.getEncryptedLongUrl()));
   }
 
   @Test
@@ -158,5 +161,19 @@ class UrlShortenerServiceTest {
     mapping.setDisabled(true);
 
     assertTrue(mapping.isDisabled());
+  }
+
+  @Test
+  void testEncryptionDecryption() {
+    String originalUrl = "https://example.com/test?user=john&id=12345";
+
+    UrlMapping mapping = service.shorten(originalUrl, null, null);
+
+    // Verify the stored URL is encrypted (not equal to original)
+    assertNotEquals(originalUrl, mapping.getEncryptedLongUrl());
+
+    // Verify decryption returns the original URL
+    String decryptedUrl = service.decryptUrl(mapping.getEncryptedLongUrl());
+    assertEquals(originalUrl, decryptedUrl);
   }
 }

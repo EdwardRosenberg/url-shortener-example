@@ -18,9 +18,17 @@ public class UrlShortenerService {
   private static final SecureRandom RANDOM = new SecureRandom();
 
   private final ConcurrentHashMap<String, UrlMapping> urlStore = new ConcurrentHashMap<>();
+  private final EncryptionService encryptionService;
+
+  public UrlShortenerService(EncryptionService encryptionService) {
+    this.encryptionService = encryptionService;
+  }
 
   public UrlMapping shorten(String longUrl, String customAlias, Instant expiry) {
     validateUrl(longUrl);
+
+    // Encrypt the URL before storing
+    String encryptedUrl = encryptionService.encrypt(longUrl);
 
     String shortCode;
     if (customAlias != null && !customAlias.isEmpty()) {
@@ -32,13 +40,17 @@ public class UrlShortenerService {
       shortCode = generateShortCode();
     }
 
-    UrlMapping mapping = new UrlMapping(shortCode, longUrl, expiry);
+    UrlMapping mapping = new UrlMapping(shortCode, encryptedUrl, expiry);
     urlStore.put(shortCode, mapping);
     return mapping;
   }
 
   public Optional<UrlMapping> findByCode(String code) {
     return Optional.ofNullable(urlStore.get(code));
+  }
+
+  public String decryptUrl(String encryptedUrl) {
+    return encryptionService.decrypt(encryptedUrl);
   }
 
   private String generateShortCode() {
