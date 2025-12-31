@@ -195,7 +195,7 @@ class UrlShortenerServiceTest {
     UrlMapping mapping = service.shorten(longUrl, customAlias, null);
     String shortCode = mapping.getShortCode();
 
-    // Clear the persistence context to force a fresh read from the database
+    // Flush to ensure data is written to the database
     repository.flush();
 
     // Verify it can be retrieved

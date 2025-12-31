@@ -14,6 +14,7 @@ public class UrlMapping {
   private String encryptedLongUrl;
 
   @Column(name = "created_at", nullable = false, updatable = false)
+  @org.hibernate.annotations.CreationTimestamp
   private Instant createdAt;
 
   @Column(name = "expiry_ts")
@@ -29,7 +30,6 @@ public class UrlMapping {
   public UrlMapping(String shortCode, String encryptedLongUrl, Instant expiry) {
     this.shortCode = shortCode;
     this.encryptedLongUrl = encryptedLongUrl;
-    this.createdAt = Instant.now();
     this.expiry = expiry;
     this.disabled = false;
   }
