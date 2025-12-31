@@ -56,7 +56,8 @@ public class EncryptionService {
 
       return Base64.getEncoder().encodeToString(byteBuffer.array());
     } catch (Exception e) {
-      throw new RuntimeException("Encryption failed", e);
+      throw new RuntimeException(
+          "Encryption failed: " + e.getClass().getSimpleName() + " - " + e.getMessage(), e);
     }
   }
 
@@ -80,7 +81,8 @@ public class EncryptionService {
 
       return new String(plaintext, StandardCharsets.UTF_8);
     } catch (Exception e) {
-      throw new RuntimeException("Decryption failed", e);
+      throw new RuntimeException(
+          "Decryption failed: " + e.getClass().getSimpleName() + " - " + e.getMessage(), e);
     }
   }
 }

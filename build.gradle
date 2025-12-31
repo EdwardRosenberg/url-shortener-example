@@ -8,6 +8,8 @@ plugins {
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
+// TODO: Revert to Java 21 when available in production environment
+// Temporarily using Java 17 for compatibility with current build environment
 java {
     sourceCompatibility = '17'
     targetCompatibility = '17'

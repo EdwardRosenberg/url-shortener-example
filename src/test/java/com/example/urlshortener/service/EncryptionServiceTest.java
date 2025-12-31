@@ -69,8 +69,8 @@ class EncryptionServiceTest {
 
   @Test
   void testEncryptionService_WithProvidedKey() {
-    // Generate a base64-encoded 32-byte key
-    String key = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    // Use a properly generated test key (32 bytes)
+    String key = "dGVzdGtleWZvcmVuY3J5cHRpb250ZXN0aW5nMTIzNDU="; // base64 of 32-byte string
     EncryptionService service = new EncryptionService(key);
 
     String plaintext = "https://example.com/test";
