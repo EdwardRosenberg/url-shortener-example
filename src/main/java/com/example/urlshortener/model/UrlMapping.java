@@ -4,14 +4,14 @@ import java.time.Instant;
 
 public class UrlMapping {
   private final String shortCode;
-  private final String longUrl;
+  private final String encryptedLongUrl;
   private final Instant createdAt;
   private final Instant expiry;
   private boolean disabled;
 
-  public UrlMapping(String shortCode, String longUrl, Instant expiry) {
+  public UrlMapping(String shortCode, String encryptedLongUrl, Instant expiry) {
     this.shortCode = shortCode;
-    this.longUrl = longUrl;
+    this.encryptedLongUrl = encryptedLongUrl;
     this.createdAt = Instant.now();
     this.expiry = expiry;
     this.disabled = false;
@@ -21,8 +21,8 @@ public class UrlMapping {
     return shortCode;
   }
 
-  public String getLongUrl() {
-    return longUrl;
+  public String getEncryptedLongUrl() {
+    return encryptedLongUrl;
   }
 
   public Instant getCreatedAt() {

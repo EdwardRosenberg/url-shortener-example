@@ -50,7 +50,55 @@ The application supports three profiles with different configurations:
 
 - **local** (default): Port 8080, DEBUG logging
 - **dev**: Port 8081, INFO logging with additional actuator endpoints
-- **prod**: Port 8082, WARN logging, restricted actuator endpoints
+- **prod**: Port 8082, WARN logging, restricted actuator endpoints, HTTPS recommended
+
+## Security Features
+
+### URL Encryption
+
+URLs are encrypted at rest using AES-256-GCM encryption to protect PII data that may be included in URLs (query parameters, user identifiers, etc.).
+
+**Key Features:**
+- AES-256-GCM encryption algorithm
+- Unique initialization vector (IV) for each encrypted URL
+- Automatic encryption on URL creation
+- Transparent decryption on URL retrieval
+
+### Encryption Key Configuration
+
+For production environments, you must configure an encryption key:
+
+1. Generate a secure 32-byte encryption key:
+   ```bash
+   openssl rand -base64 32
+   ```
+
+2. Set the `ENCRYPTION_KEY` environment variable:
+   ```bash
+   export ENCRYPTION_KEY="your-generated-key-here"
+   ```
+
+3. Or add it to your `.env.properties` file:
+   ```properties
+   encryption.key=your-generated-key-here
+   ```
+
+**Note:** In development/testing environments without a configured key, a random key is generated automatically. This means encrypted data will not persist across application restarts.
+
+### HTTPS for Data in Transit
+
+For production deployments, enable HTTPS to encrypt data in transit:
+
+1. Generate or obtain an SSL certificate
+2. Configure SSL in `application-prod.properties`:
+   ```properties
+   server.ssl.enabled=true
+   server.ssl.key-store=classpath:keystore.p12
+   server.ssl.key-store-password=${SSL_KEYSTORE_PASSWORD}
+   server.ssl.key-store-type=PKCS12
+   ```
+
+3. Deploy behind a reverse proxy (nginx, Apache) or load balancer with TLS termination
 
 ### Environment Variables
 
